@@ -21,13 +21,12 @@ public class MainActivity extends AppCompatActivity {
         var viewModel = new ViewModelProvider(this).get(CounterViewModel.class);
 
         viewModel.getData().observe(this, model -> {
-            var count = model.count;
+            var count = model.getCount();
             Log.d(TAG, String.format("view Model changed: %s", count));
         });
         Button addButton = findViewById(R.id.addbutton);
         addButton.setOnClickListener(button -> {
-            var model = new Model();
-            model.count = viewModel.getData().getValue().count + 1;
+            var model = new Model(viewModel.getData().getValue().getCount() + 1);
             viewModel.getData().postValue(model);
         });
     }

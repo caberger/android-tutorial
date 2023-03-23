@@ -1,8 +1,17 @@
 package at.ac.htlperg.viewmodeldemo;
+
 /*
-public record Model (int count){
+public record Model (int count) {
 }
 */
+
 public class Model {
-        public int count;
+        private final int count;
+        public Model(int count) {
+                this.count = count;
+        }
+
+        public int getCount() {
+                return count;
+        }
 }
