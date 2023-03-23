@@ -31,8 +31,10 @@ public class MainActivity extends AppCompatActivity {
         });
     }
     public void onButtonClicked(View view) {
-        var intent = new Intent(this, DetailActivity.class);
         var viewModel = new ViewModelProvider(this).get(CounterViewModel.class);
+        var json = new ModelSerializer().toResources(viewModel.getData().getValue());
+        Log.d(TAG, "json is: " + json);
+        var intent = new Intent(this, DetailActivity.class);
 
         intent.putExtra(Intent.EXTRA_TEXT, viewModel.getData().getValue());
         startActivity(intent);
