@@ -32,6 +32,9 @@ public class MainActivity extends AppCompatActivity {
     }
     public void onButtonClicked(View view) {
         var intent = new Intent(this, DetailActivity.class);
+        var viewModel = new ViewModelProvider(this).get(CounterViewModel.class);
+
+        intent.putExtra(Intent.EXTRA_TEXT, viewModel.getData().getValue());
         startActivity(intent);
     }
 }

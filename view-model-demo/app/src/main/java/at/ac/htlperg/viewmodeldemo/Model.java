@@ -5,13 +5,15 @@ public record Model (int count) {
 }
 */
 
-public class Model {
-        private final int count;
-        public Model(int count) {
-                this.count = count;
-        }
+import java.io.Serializable;
 
-        public int getCount() {
-                return count;
-        }
+public class Model implements Serializable {
+    private final int count;
+    public Model(int count) {
+        this.count = count;
+    }
+
+    public int getCount() {
+        return count;
+    }
 }
