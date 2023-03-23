@@ -1,3 +1,5 @@
+package at.ac.htlperg.viewmodeldemo;
+
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
