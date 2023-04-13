@@ -21,6 +21,9 @@ public class MainActivity extends AppCompatActivity {
             var users = model.getUsers();
             users.stream().forEach(user -> Log.d(TAG, String.format("view Model changed: %s", user.name)));
         });
+        var users = new UserService().load();
+        var model = new Model(users);
+        viewModel.getData().postValue(model);
         /*
         Button addButton = findViewById(R.id.addbutton);
         addButton.setOnClickListener(button -> {
