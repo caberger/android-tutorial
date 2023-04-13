@@ -1,9 +1,6 @@
 package at.ac.htlperg.viewmodeldemo;
 
-import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
-
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.helper.widget.MotionEffect;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.content.Intent;
@@ -18,18 +15,21 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        var viewModel = new ViewModelProvider(this).get(CounterViewModel.class);
+        var viewModel = new ViewModelProvider(this).get(UserViewModel.class);
 
         viewModel.getData().observe(this, model -> {
-            var count = model.count;
-            Log.d(TAG, String.format("view Model changed: %s", count));
+            var users = model.getUsers();
+            users.stream().forEach(user -> Log.d(TAG, String.format("view Model changed: %s", user.name)));
         });
+        /*
         Button addButton = findViewById(R.id.addbutton);
         addButton.setOnClickListener(button -> {
-            var model = new Model();
+            var model = new Model(users);
             model.count = viewModel.getData().getValue().count + 1;
             viewModel.getData().postValue(model);
         });
+        */
+
     }
     public void onButtonClicked(View view) {
         var intent = new Intent(this, DetailActivity.class);
