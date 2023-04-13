@@ -15,7 +15,7 @@ public class DetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         Model model = new ModelSerializer().fromResource(getIntent().getStringExtra(Intent.EXTRA_TEXT));
 
-        Log.d(TAG, String.format("Count is: %d", model.count));
+        //Log.d(TAG, String.format("Count is: %d", model.count));
         setContentView(R.layout.activity_detail);
     }
 }
