@@ -21,7 +21,7 @@ public class UserService {
                     .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
             return CompletableFuture.supplyAsync(() -> {
-                User[] users = new User[0];
+                var users = new User[0];
                 try {
                     users = mapper.readValue(url, User[].class);
                     return List.of(users);
