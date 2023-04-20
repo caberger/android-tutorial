@@ -26,23 +26,6 @@ public class MainActivity extends AppCompatActivity {
             var model = new Model(users);
             viewModel.getData().postValue(model);
         });
-        /*
-        Button addButton = findViewById(R.id.addbutton);
-        addButton.setOnClickListener(button -> {
-            var oldModel = viewModel.getData().getValue();
-            var model = new ModelSerializer().clone(oldModel);
-            model.count++;
-            viewModel.getData().postValue(model);
-        });
+    }
 
-         */
-    }
-    public void onButtonClicked(View view) {
-        var viewModel = new ViewModelProvider(this).get(UserViewModel.class);
-        var json = new ModelSerializer().toResource(viewModel.getData().getValue());
-        Log.d(TAG, "json is: " + json);
-        var intent = new Intent(this, DetailActivity.class);
-        intent.putExtra(Intent.EXTRA_TEXT, json);
-        startActivity(intent);
-    }
 }
