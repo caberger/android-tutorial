@@ -25,7 +25,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         locationManager.requestPermissions(this)
-        //val viewModel = ViewModelProvider(this)[LocationViewModel::class.java]
         val viewModel: LocationViewModel by viewModels()
         viewModel.store.subscribe( {
             Log.d(TAG, "loc:" + it.locationData.latitude)
@@ -47,7 +46,7 @@ class MainActivity : ComponentActivity() {
 fun locationView(viewModel: LocationViewModel) {
     var model: State<Model> = viewModel.store.subscribeAsState(Model())
     Text(
-        text = "Hello ${model.value.locationData.latitude}!"
+        text = "Hello (${model.value.locationData.latitude}, ${model.value.locationData.longitude})!"
     )
 }
 @Preview(showBackground = true)

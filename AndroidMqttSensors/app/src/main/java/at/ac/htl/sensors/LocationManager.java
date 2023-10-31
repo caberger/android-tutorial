@@ -4,6 +4,8 @@ import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
 import android.content.pm.PackageManager;
+import android.location.Location;
+import android.os.Looper;
 import android.util.Log;
 
 import androidx.activity.ComponentActivity;
@@ -11,6 +13,8 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.core.app.ActivityCompat;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
@@ -32,12 +36,21 @@ public class LocationManager {
                 ActivityCompat.checkSelfPermission(activity, ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             throw new RuntimeException("Fatal: You did not request Location permissions in your code");
         }
-        locationRequest = new LocationRequest.Builder(2000).build();
+        locationRequest = new LocationRequest.Builder(2000)
+                .build();
+
         final var viewModel = new ViewModelProvider(activity).get(LocationViewModel.class);
+        /*
+        fusedLocationClient.getLastLocation().addOnSuccessListener(activity, location -> {
+            Log.d(TAG, String.format("last loc: %g %g", location.getLongitude(), location.getLatitude()));
+        });
+        */
         fusedLocationClient.requestLocationUpdates(locationRequest, loc -> {
-            Log.d(TAG, String.format("location received %g %g", loc.getLongitude(), loc.getLatitude()));
+            var msg = String.format("loc update received %g %g", loc.getLongitude(), loc.getLatitude());
+            Log.d(TAG, msg);
             viewModel.next(model -> model.locationData = new Model.LocationData(loc.getLatitude(), loc.getLongitude()));
         }, activity.getMainLooper());
+        Log.i(TAG, "Location Requests started");
     }
     public void requestPermissions(ComponentActivity activity) {
         activity
@@ -47,27 +60,32 @@ public class LocationManager {
                 ACCESS_FINE_LOCATION,
                 ACCESS_COARSE_LOCATION
             });
+        var available = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(activity) == ConnectionResult.SUCCESS;
+        var txt = available ? "true" : "false";
+        Log.i(TAG, "Play services available: " + txt);
     }
-    private void subscribeTpLocationServiceStateChanges(ComponentActivity activity) {
+    private void subscribeToLocationServiceStateChanges(ComponentActivity activity) {
         var viewModel = new ViewModelProvider(activity).get(LocationViewModel.class);
         viewModel.getStore().subscribe(model -> {
             if (!model.locationServicesStarted) {
                 if (model.permissions.coarse() || model.permissions.fine()) {
                     viewModel.next(mdl -> mdl.locationServicesStarted = true);
-                    start(activity);
+                    activity.runOnUiThread(() -> start(activity));
                 }
             }
         });
     }
     private void evaluateRequestedPermissionsResult(ComponentActivity activity, Map<String, Boolean> result) {
-        subscribeTpLocationServiceStateChanges(activity);
-
+        //subscribeToLocationServiceStateChanges(activity);
+        var coarseAllowed = result.getOrDefault(ACCESS_COARSE_LOCATION, false);
+        var fineAllowed = result.getOrDefault(ACCESS_FINE_LOCATION, false);
         var viewModel = new ViewModelProvider(activity).get(LocationViewModel.class);
         viewModel.next(model -> {
-            model.permissions = new Model.LocationPermissions(
-                    result.getOrDefault(ACCESS_FINE_LOCATION, false),
-                    result.getOrDefault(ACCESS_COARSE_LOCATION, false)
-            );
+            model.permissions = new Model.LocationPermissions(fineAllowed, coarseAllowed);
         });
+        if (coarseAllowed || fineAllowed) {
+            start(activity);
+        }
+
     }
 }
