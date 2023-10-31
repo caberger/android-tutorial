@@ -53,9 +53,14 @@ android {
 
 dependencies {
     val lifecycle_version = "2.6.1"
+    val compose_version="1.5.2"
+    val rxjava_version="3.1.8"
     implementation("androidx.core:core-ktx:1.9.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version")
-    implementation("androidx.compose.runtime:runtime-livedata:1.5.2")
+    implementation("androidx.compose.runtime:runtime-rxjava3:$compose_version")
+    implementation("io.reactivex.rxjava3:rxjava:$rxjava_version")
+
+//    implementation("androidx.compose.runtime:runtime-livedata:1.5.2")
     implementation("androidx.activity:activity-compose:1.7.0")
     implementation(platform("androidx.compose:compose-bom:2023.03.00"))
     implementation("androidx.compose.ui:ui")

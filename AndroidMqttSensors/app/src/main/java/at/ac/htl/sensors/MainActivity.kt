@@ -10,13 +10,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.State
+import androidx.compose.runtime.rxjava3.subscribeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import at.ac.htl.sensors.model.LocationViewModel
 import at.ac.htl.sensors.model.Model
 import at.ac.htl.sensors.ui.theme.AndroidMqttSensorsTheme
@@ -30,7 +27,7 @@ class MainActivity : ComponentActivity() {
         locationManager.requestPermissions(this)
         //val viewModel = ViewModelProvider(this)[LocationViewModel::class.java]
         val viewModel: LocationViewModel by viewModels()
-        viewModel.data.observe(this, {
+        viewModel.store.subscribe( {
             Log.d(TAG, "loc:" + it.locationData.latitude)
         })
         setContent {
@@ -48,10 +45,9 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun locationView(viewModel: LocationViewModel) {
-    //val itemState by viewModel.
-    var model = viewModel.data.observeAsState()
+    var model: State<Model> = viewModel.store.subscribeAsState(Model())
     Text(
-        text = "Hello ${model.value?.locationData?.latitude}!"
+        text = "Hello ${model.value.locationData.latitude}!"
     )
 }
 @Preview(showBackground = true)

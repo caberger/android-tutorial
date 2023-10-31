@@ -1,38 +1,29 @@
 package at.ac.htl.sensors.model;
 
-import android.app.Application;
-
-import androidx.annotation.NonNull;
-import androidx.compose.runtime.MutableState;
-
-import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
-
-import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
 
+import io.reactivex.rxjava3.subjects.ReplaySubject;
+
 public class LocationViewModel extends ViewModel {
     final private ModelSerializer serializer = new ModelSerializer();
-    final private MutableLiveData<Model> data = new MutableLiveData<>(new Model());
+    final private ReplaySubject<Model> store = ReplaySubject.create();
 
-    public Model getModel() {
-        return data.getValue();
-    }
     public Model.LocationData location() {
-        return data.getValue().locationData;
+        return store.getValue().locationData;
     }
-    public MutableLiveData<Model> getData() {
-        return data;
-    }
-    public void next(Consumer<Model> reducer) {
-        var nextState = serializer.clone(getModel());
-        reducer.accept(nextState);
-        getData().postValue(nextState);
+    public ReplaySubject<Model> getStore() {
+        return store;
     }
 
-    @NotNull
-    public LocationViewModel invoke() {
-        return this;
+    public void next(Consumer<Model> reducer) {
+        var current = store.getValue();
+        if (current == null) {
+            current = new Model();
+        }
+        var nextState = serializer.clone(current);
+        reducer.accept(nextState);
+        store.onNext(nextState);
     }
 }

@@ -10,7 +10,6 @@ import androidx.activity.ComponentActivity;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.core.app.ActivityCompat;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelStoreOwner;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationRequest;
@@ -36,6 +35,7 @@ public class LocationManager {
         locationRequest = new LocationRequest.Builder(2000).build();
         final var viewModel = new ViewModelProvider(activity).get(LocationViewModel.class);
         fusedLocationClient.requestLocationUpdates(locationRequest, loc -> {
+            Log.d(TAG, String.format("location received %g %g", loc.getLongitude(), loc.getLatitude()));
             viewModel.next(model -> model.locationData = new Model.LocationData(loc.getLatitude(), loc.getLongitude()));
         }, activity.getMainLooper());
     }
@@ -48,19 +48,19 @@ public class LocationManager {
                 ACCESS_COARSE_LOCATION
             });
     }
-    private void handleLocationServiceState(ComponentActivity activity) {
+    private void subscribeTpLocationServiceStateChanges(ComponentActivity activity) {
         var viewModel = new ViewModelProvider(activity).get(LocationViewModel.class);
-        viewModel.getData().observe(activity, model -> {
+        viewModel.getStore().subscribe(model -> {
             if (!model.locationServicesStarted) {
                 if (model.permissions.coarse() || model.permissions.fine()) {
+                    viewModel.next(mdl -> mdl.locationServicesStarted = true);
                     start(activity);
-                    model.locationServicesStarted = true;
                 }
             }
         });
     }
     private void evaluateRequestedPermissionsResult(ComponentActivity activity, Map<String, Boolean> result) {
-        handleLocationServiceState(activity);
+        subscribeTpLocationServiceStateChanges(activity);
 
         var viewModel = new ViewModelProvider(activity).get(LocationViewModel.class);
         viewModel.next(model -> {
