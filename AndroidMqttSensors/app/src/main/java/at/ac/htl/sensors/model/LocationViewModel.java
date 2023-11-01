@@ -5,22 +5,18 @@ import androidx.lifecycle.ViewModel;
 import java.util.function.Consumer;
 
 import io.reactivex.rxjava3.subjects.BehaviorSubject;
-import io.reactivex.rxjava3.subjects.ReplaySubject;
+import io.reactivex.rxjava3.core.Observable;
 
 public class LocationViewModel extends ViewModel {
-    final private ModelSerializer serializer = new ModelSerializer();
+    final private Mapper<Model> mapper = new Mapper<>(Model.class);
     final private BehaviorSubject<Model> store = BehaviorSubject.createDefault(new Model());
 
-    public Model.LocationData location() {
-        return store.getValue().locationData;
-    }
     public BehaviorSubject<Model> getStore() {
         return store;
     }
-
     public void next(Consumer<Model> reducer) {
         var current = store.getValue();
-        var nextState = serializer.clone(current);
+        var nextState = mapper.clone(current);
         reducer.accept(nextState);
         store.onNext(nextState);
     }

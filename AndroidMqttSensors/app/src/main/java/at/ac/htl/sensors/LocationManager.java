@@ -44,7 +44,7 @@ public class LocationManager {
         final var viewModel = new ViewModelProvider(activity).get(LocationViewModel.class);
 
         fusedLocationClient.requestLocationUpdates(locationRequest, loc -> {
-            viewModel.next(model -> model.locationData = new Model.LocationData(loc.getLatitude(), loc.getLongitude()));
+            viewModel.next(model -> model.locationData = new Model.LocationData(loc.getLatitude(), loc.getLongitude(), true));
         }, activity.getMainLooper());
         Log.i(TAG, "Location Requests started");
     }

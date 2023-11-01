@@ -11,9 +11,9 @@ package at.ac.htl.sensors.model;
  * @see <a href="https://redux.js.org/understanding/thinking-in-redux/three-principles">Three Principles</a>
  */
 public class Model {
-    public record LocationData(double longitude, double latitude) {
+    public record LocationData(double longitude, double latitude, Boolean valid) {
         public LocationData() {
-            this(0, 0);
+            this(0, 0, false);
         }
     }
     public record LocationPermissions (boolean fine, boolean coarse) {

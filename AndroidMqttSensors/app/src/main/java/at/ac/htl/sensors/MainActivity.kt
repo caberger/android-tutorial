@@ -42,12 +42,13 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun LocationView(viewModel: LocationViewModel) {
-    val model: State<Model> = viewModel.store.subscribeAsState(Model())
+    val locationData: State<Model.LocationData> = viewModel.store.map { it.locationData }.subscribeAsState(Model.LocationData())
     Column(modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally) {
+        val txt = if (locationData.value.valid) "(${locationData.value.latitude}, ${locationData.value.longitude})" else "..."
         Text(
-            text = "(${model.value.locationData.latitude}, ${model.value.locationData.longitude})"
+            text = txt
         )
     }
 }

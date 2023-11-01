@@ -9,34 +9,34 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 
 import java.io.IOException;
 
-public class ModelSerializer {
-    private ObjectMapper mapper = new ObjectMapper()
-            .configure(SerializationFeature.INDENT_OUTPUT, true)
-            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-            ;
-    public ModelSerializer() {
+public class Mapper<T> {
+    private Class<? extends T> clazz;
+    private ObjectMapper mapper;
+
+    public Mapper(Class<? extends T> clazz) {
+        this.clazz = clazz;
         mapper = new ObjectMapper()
                 .configure(SerializationFeature.INDENT_OUTPUT, true)
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+        mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY); // records
     }
-    public String toResource(Model model) {
+    public String toResource(T model) {
         try {
             return mapper.writeValueAsString(model);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
     }
-    public Model fromResource(String json) {
-        Model model = null;
+    public T fromResource(String json) {
+        T model = null;
         try {
-            model = mapper.readValue(json.getBytes(), Model.class);
+            model = mapper.readValue(json.getBytes(), clazz);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
         return model;
     }
-    public Model clone(Model model) {
+    public T clone(T model) {
         return fromResource(toResource(model));
     }
 }
