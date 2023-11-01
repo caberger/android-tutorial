@@ -21,7 +21,6 @@ import at.ac.htl.sensors.model.Model
 import at.ac.htl.sensors.ui.theme.AndroidMqttSensorsTheme
 
 class MainActivity : ComponentActivity() {
-    var TAG = MainActivity::class.java.simpleName
     private var locationManager = LocationManager()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,10 +42,10 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun LocationView(viewModel: LocationViewModel) {
     val locationData: State<Model.LocationData> = viewModel.store.map { it.locationData }.subscribeAsState(Model.LocationData())
+    val txt = if (locationData.value.valid) "(${locationData.value.latitude}, ${locationData.value.longitude})" else "..."
     Column(modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally) {
-        val txt = if (locationData.value.valid) "(${locationData.value.latitude}, ${locationData.value.longitude})" else "..."
         Text(
             text = txt
         )
@@ -56,6 +55,7 @@ fun LocationView(viewModel: LocationViewModel) {
 @Composable
 fun LocationViewPreview() {
     val viewModel = LocationViewModel()
+
     AndroidMqttSensorsTheme {
         LocationView(viewModel)
     }
