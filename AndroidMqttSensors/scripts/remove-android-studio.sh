@@ -1,4 +1,5 @@
 #!/usr/Bin/env bash
+# script to remove android studio from your mac
 
 pushd ~
     pushd ./Library

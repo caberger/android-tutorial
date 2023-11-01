@@ -23,12 +23,14 @@ import java.util.Map;
 
 import at.ac.htl.sensors.model.LocationViewModel;
 import at.ac.htl.sensors.model.Model;
+import io.reactivex.rxjava3.disposables.Disposable;
 
 public class LocationManager {
     public static final String TAG = LocationManager.class
             .getSimpleName();
     private FusedLocationProviderClient fusedLocationClient;
     private LocationRequest locationRequest;
+    private Disposable locationServiceStateSubscription;
 
     public void start(ComponentActivity activity) {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(activity);
@@ -40,14 +42,8 @@ public class LocationManager {
                 .build();
 
         final var viewModel = new ViewModelProvider(activity).get(LocationViewModel.class);
-        /*
-        fusedLocationClient.getLastLocation().addOnSuccessListener(activity, location -> {
-            Log.d(TAG, String.format("last loc: %g %g", location.getLongitude(), location.getLatitude()));
-        });
-        */
+
         fusedLocationClient.requestLocationUpdates(locationRequest, loc -> {
-            var msg = String.format("loc update received %g %g", loc.getLongitude(), loc.getLatitude());
-            Log.d(TAG, msg);
             viewModel.next(model -> model.locationData = new Model.LocationData(loc.getLatitude(), loc.getLongitude()));
         }, activity.getMainLooper());
         Log.i(TAG, "Location Requests started");
@@ -60,13 +56,12 @@ public class LocationManager {
                 ACCESS_FINE_LOCATION,
                 ACCESS_COARSE_LOCATION
             });
-        var available = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(activity) == ConnectionResult.SUCCESS;
-        var txt = available ? "true" : "false";
-        Log.i(TAG, "Play services available: " + txt);
+        final var available = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(activity) == ConnectionResult.SUCCESS;
+        Log.i(TAG, "Play services available: " + (available ? "true" : "false"));
     }
     private void subscribeToLocationServiceStateChanges(ComponentActivity activity) {
-        var viewModel = new ViewModelProvider(activity).get(LocationViewModel.class);
-        viewModel.getStore().subscribe(model -> {
+        final var viewModel = new ViewModelProvider(activity).get(LocationViewModel.class);
+        locationServiceStateSubscription = viewModel.getStore().subscribe(model -> {
             if (!model.locationServicesStarted) {
                 if (model.permissions.coarse() || model.permissions.fine()) {
                     viewModel.next(mdl -> mdl.locationServicesStarted = true);
@@ -76,16 +71,12 @@ public class LocationManager {
         });
     }
     private void evaluateRequestedPermissionsResult(ComponentActivity activity, Map<String, Boolean> result) {
-        //subscribeToLocationServiceStateChanges(activity);
-        var coarseAllowed = result.getOrDefault(ACCESS_COARSE_LOCATION, false);
-        var fineAllowed = result.getOrDefault(ACCESS_FINE_LOCATION, false);
-        var viewModel = new ViewModelProvider(activity).get(LocationViewModel.class);
+        subscribeToLocationServiceStateChanges(activity);
+        final var coarseAllowed = Boolean.TRUE.equals(result.getOrDefault(ACCESS_COARSE_LOCATION, false));
+        final var fineAllowed = Boolean.TRUE.equals(result.getOrDefault(ACCESS_FINE_LOCATION, false));
+        final var viewModel = new ViewModelProvider(activity).get(LocationViewModel.class);
         viewModel.next(model -> {
             model.permissions = new Model.LocationPermissions(fineAllowed, coarseAllowed);
         });
-        if (coarseAllowed || fineAllowed) {
-            start(activity);
-        }
-
     }
 }
